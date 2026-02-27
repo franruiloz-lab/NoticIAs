@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NoticIAs</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0f13;
+      --surface: #1a1a24;
+      --surface2: #22222f;
+      --border: #2e2e42;
+      --accent: #7c6af7;
+      --accent2: #a78bfa;
+      --text: #e2e2ef;
+      --muted: #8888aa;
+      --green: #34d399;
+      --yellow: #fbbf24;
+      --red: #f87171;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      margin-left: auto;
+    }
+
+    .stat {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .stat span {
+      color: var(--accent2);
+      font-weight: 600;
+    }
+
+    .controls {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 2rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    input[type="text"] {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.45rem 0.9rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      outline: none;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    input[type="text"]:focus { border-color: var(--accent); }
+
+    select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.45rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    select:focus { border-color: var(--accent); }
+
+    button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.45rem 1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: opacity 0.15s;
+    }
+
+    button:hover { opacity: 0.85; }
+    button.secondary {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem;
+    }
+
+    .results-info {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      transition: border-color 0.15s;
+    }
+
+    .card:hover { border-color: var(--accent); }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .score-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.2rem 0.5rem;
+      border-radius: 20px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .score-high   { background: rgba(52,211,153,0.15); color: var(--green); }
+    .score-mid    { background: rgba(251,191,36,0.15);  color: var(--yellow); }
+    .score-low    { background: rgba(248,113,113,0.15); color: var(--red); }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--text);
+    }
+
+    .card-title a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .card-title a:hover { color: var(--accent2); }
+
+    .card-summary {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: auto;
+    }
+
+    .source-badge {
+      font-size: 0.72rem;
+      color: var(--muted);
+      background: var(--surface2);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .profile-badge {
+      font-size: 0.72rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .profile-technical     { background: rgba(124,106,247,0.2); color: var(--accent2); }
+    .profile-non-technical { background: rgba(52,211,153,0.15); color: var(--green); }
+    .profile-both          { background: rgba(251,191,36,0.12);  color: var(--yellow); }
+
+    .tag {
+      font-size: 0.7rem;
+      color: var(--muted);
+      background: var(--surface2);
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    .upvotes {
+      margin-left: auto;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .empty {
+      text-align: center;
+      padding: 4rem;
+      color: var(--muted);
+    }
+
+    .empty h3 { font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text); }
+
+    .load-more {
+      text-align: center;
+      margin-top: 1.5rem;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">NoticIAs</div>
+  <div class="stats" id="stats">
+    <div class="stat">Total: <span id="stat-total">—</span></div>
+    <div class="stat">Hoy: <span id="stat-today">—</span></div>
+    <div class="stat">Score 8+: <span id="stat-high">—</span></div>
+    <div class="stat">Técnicos: <span id="stat-tech">—</span></div>
+    <div class="stat">No técnicos: <span id="stat-nontech">—</span></div>
+  </div>
+</header>
+
+<div class="controls">
+  <input type="text" id="search" placeholder="Buscar por título o descripción..." />
+
+  <select id="filter-profile">
+    <option value="all">Todos los perfiles</option>
+    <option value="technical">Técnico</option>
+    <option value="non-technical">No técnico</option>
+    <option value="both">Ambos</option>
+  </select>
+
+  <select id="filter-score">
+    <option value="">Cualquier score</option>
+    <option value="8">Score 8+ (top)</option>
+    <option value="6">Score 6+</option>
+    <option value="4">Score 4+</option>
+  </select>
+
+  <button onclick="loadItems(true)">Buscar</button>
+  <button class="secondary" onclick="resetFilters()">Limpiar</button>
+</div>
+
+<main>
+  <div class="results-info" id="results-info"></div>
+  <div class="grid" id="grid"></div>
+  <div class="loading" id="loading" style="display:none">Cargando...</div>
+  <div class="load-more" id="load-more" style="display:none">
+    <button class="secondary" onclick="loadMore()">Cargar más</button>
+  </div>
+</main>
+
+<script>
+  let offset = 0;
+  const LIMIT = 30;
+
+  async function loadStats() {
+    const res = await fetch('/api/stats');
+    const s = await res.json();
+    document.getElementById('stat-total').textContent   = s.total;
+    document.getElementById('stat-today').textContent   = s.today;
+    document.getElementById('stat-high').textContent    = s.highScore;
+    document.getElementById('stat-tech').textContent    = s.technical;
+    document.getElementById('stat-nontech').textContent = s.nontechnical;
+  }
+
+  async function loadItems(reset = false) {
+    if (reset) {
+      offset = 0;
+      document.getElementById('grid').innerHTML = '';
+    }
+
+    const search  = document.getElementById('search').value.trim();
+    const profile = document.getElementById('filter-profile').value;
+    const minScore = document.getElementById('filter-score').value;
+
+    const params = new URLSearchParams({ limit: LIMIT, offset });
+    if (search)   params.set('search', search);
+    if (profile && profile !== 'all') params.set('profile', profile);
+    if (minScore) params.set('minScore', minScore);
+
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('load-more').style.display = 'none';
+
+    const res = await fetch(`/api/items?${params}`);
+    const { items, count } = await res.json();
+
+    document.getElementById('loading').style.display = 'none';
+
+    renderItems(items);
+    offset += items.length;
+
+    if (reset) {
+      document.getElementById('results-info').textContent =
+        count === 0 ? '' : `${offset} resultado${offset !== 1 ? 's' : ''} encontrado${offset !== 1 ? 's' : ''}`;
+    }
+
+    document.getElementById('load-more').style.display = count === LIMIT ? 'block' : 'none';
+  }
+
+  function loadMore() {
+    loadItems(false);
+  }
+
+  function resetFilters() {
+    document.getElementById('search').value = '';
+    document.getElementById('filter-profile').value = 'all';
+    document.getElementById('filter-score').value = '';
+    loadItems(true);
+  }
+
+  function scoreClass(score) {
+    if (score >= 8) return 'score-high';
+    if (score >= 5) return 'score-mid';
+    return 'score-low';
+  }
+
+  function profileLabel(profile) {
+    if (profile === 'technical')     return 'Técnico';
+    if (profile === 'non-technical') return 'No técnico';
+    return 'Ambos';
+  }
+
+  function renderItems(items) {
+    const grid = document.getElementById('grid');
+
+    if (items.length === 0 && offset === 0) {
+      grid.innerHTML = `<div class="empty" style="grid-column:1/-1">
+        <h3>Sin resultados</h3>
+        <p>Ejecuta <code>npm run fetch</code> para importar noticias.</p>
+      </div>`;
+      return;
+    }
+
+    for (const item of items) {
+      const tags = (item.tags || []).map(t => `<span class="tag">#${t}</span>`).join('');
+      const upvotes = item.upvotes > 0 ? `<span class="upvotes">▲ ${item.upvotes}</span>` : '';
+      const summary = item.summary
+        ? `<div class="card-summary">${escHtml(item.summary)}</div>`
+        : '';
+
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="card-header">
+          <div class="card-title">
+            <a href="${escHtml(item.url)}" target="_blank" rel="noopener">${escHtml(item.title)}</a>
+          </div>
+          <span class="score-badge ${scoreClass(item.score)}">${item.score}/10</span>
+        </div>
+        ${summary}
+        <div class="card-footer">
+          <span class="source-badge">${escHtml(item.source)}</span>
+          <span class="profile-badge profile-${item.profile}">${profileLabel(item.profile)}</span>
+          ${tags}
+          ${upvotes}
+        </div>
+      `;
+      grid.appendChild(card);
+    }
+  }
+
+  function escHtml(str) {
+    return String(str ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  // Enter en buscador
+  document.getElementById('search').addEventListener('keydown', e => {
+    if (e.key === 'Enter') loadItems(true);
+  });
+
+  // Carga inicial
+  loadStats();
+  loadItems(true);
+</script>
+
+</body>
+</html>
