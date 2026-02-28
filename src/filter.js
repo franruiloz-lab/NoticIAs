@@ -28,62 +28,74 @@ Criterios de perfil:
 
 Tags posibles (elige 1-3): automatizacion, negocio, herramienta, modelo, investigacion, tutoral, tendencia, no-code, agentes, imagen, voz, video, datos, productividad`;
 
-async function filterItem(item) {
+async function filterItem(item, retries = 4) {
   const prompt = `Título: ${item.title}\nFuente: ${item.source}\n${item.summary ? `Descripción: ${item.summary}` : ''}`;
 
-  try {
-    const response = await groq.chat.completions.create({
-      model: config.AI_FILTER.model,
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: prompt },
-      ],
-      temperature: 0.2,
-      max_tokens: 300,
-    });
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const response = await groq.chat.completions.create({
+        model: config.AI_FILTER.model,
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'user', content: prompt },
+        ],
+        temperature: 0.2,
+        max_tokens: 300,
+      });
 
-    const text = response.choices[0]?.message?.content || '';
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('No JSON in response');
+      const text = response.choices[0]?.message?.content || '';
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error('No JSON in response');
 
-    const result = JSON.parse(jsonMatch[0]);
-    return {
-      score:   Math.min(10, Math.max(0, parseInt(result.score) || 0)),
-      profile: ['technical', 'non-technical', 'both'].includes(result.profile) ? result.profile : 'both',
-      summary: result.summary || item.summary || '',
-      tags:    JSON.stringify(Array.isArray(result.tags) ? result.tags.slice(0, 3) : []),
-    };
-  } catch (err) {
-    console.error(`[Filter] Error evaluando "${item.title}":`, err.message);
-    return { score: 0, profile: 'both', summary: item.summary || '', tags: '[]' };
+      const result = JSON.parse(jsonMatch[0]);
+      return {
+        score:   Math.min(10, Math.max(0, parseInt(result.score) || 0)),
+        profile: ['technical', 'non-technical', 'both'].includes(result.profile) ? result.profile : 'both',
+        summary: result.summary || item.summary || '',
+        tags:    JSON.stringify(Array.isArray(result.tags) ? result.tags.slice(0, 3) : []),
+      };
+    } catch (err) {
+      const msg = err.message || '';
+      // Extraer el tiempo de espera del mensaje de rate limit
+      const waitMatch = msg.match(/try again in ([\d.]+)s/);
+      const isRateLimit = err.status === 429 || msg.includes('rate_limit');
+
+      if (isRateLimit && attempt < retries) {
+        const waitMs = waitMatch ? Math.ceil(parseFloat(waitMatch[1]) * 1000) + 200 : 8000;
+        process.stdout.write(`[Filter] Rate limit, esperando ${(waitMs/1000).toFixed(1)}s...\r`);
+        await new Promise(r => setTimeout(r, waitMs));
+        continue;
+      }
+
+      console.error(`[Filter] Error evaluando "${item.title}":`, msg.slice(0, 80));
+      return { score: 0, profile: 'both', summary: item.summary || '', tags: '[]' };
+    }
   }
+
+  return { score: 0, profile: 'both', summary: item.summary || '', tags: '[]' };
 }
 
 async function filterItems(items) {
-  console.log(`[Filter] Evaluando ${items.length} items con IA...`);
+  console.log(`[Filter] Evaluando ${items.length} items con IA (uno a uno para respetar rate limit)...`);
   const results = [];
 
-  // procesar en lotes de 5 para no saturar la API
-  const BATCH = 5;
-  for (let i = 0; i < items.length; i += BATCH) {
-    const batch = items.slice(i, i + BATCH);
-    const evaluated = await Promise.all(batch.map(item => filterItem(item)));
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    const eval_ = await filterItem(item);
 
-    for (let j = 0; j < batch.length; j++) {
-      const item = batch[j];
-      const eval_ = evaluated[j];
-
-      if (eval_.score >= config.AI_FILTER.min_score) {
-        results.push({ ...item, ...eval_ });
-      }
+    if (eval_.score >= config.AI_FILTER.min_score) {
+      results.push({ ...item, ...eval_ });
     }
 
-    console.log(`[Filter] Procesados ${Math.min(i + BATCH, items.length)}/${items.length}`);
-    // pequeña pausa entre lotes
-    if (i + BATCH < items.length) await new Promise(r => setTimeout(r, 300));
+    if ((i + 1) % 10 === 0) {
+      console.log(`[Filter] Procesados ${i + 1}/${items.length} — guardados hasta ahora: ${results.length}`);
+    }
+
+    // pausa entre items para no saturar el límite de tokens/minuto
+    if (i + 1 < items.length) await new Promise(r => setTimeout(r, 700));
   }
 
-  console.log(`[Filter] ${results.length} items pasaron el filtro (score >= ${config.AI_FILTER.min_score})`);
+  console.log(`\n[Filter] ${results.length} items pasaron el filtro (score >= ${config.AI_FILTER.min_score})`);
   return results;
 }
 

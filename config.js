@@ -39,7 +39,7 @@ module.exports = {
   MAX_ITEMS_PER_SOURCE: 20, // cuantos items traer por fuente en cada fetch
 
   AI_FILTER: {
-    model: 'llama3-8b-8192', // modelo rápido y barato en Groq
+    model: 'llama-3.1-8b-instant', // modelo rápido y barato en Groq
     min_score: 6,            // puntuación mínima para guardar (0-10)
   },
 };

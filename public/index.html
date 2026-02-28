@@ -19,6 +19,7 @@
       --green: #34d399;
       --yellow: #fbbf24;
       --red: #f87171;
+      --chat-width: 420px;
     }
 
     body {
@@ -54,15 +55,8 @@
       margin-left: auto;
     }
 
-    .stat {
-      font-size: 0.78rem;
-      color: var(--muted);
-    }
-
-    .stat span {
-      color: var(--accent2);
-      font-weight: 600;
-    }
+    .stat { font-size: 0.78rem; color: var(--muted); }
+    .stat span { color: var(--accent2); font-weight: 600; }
 
     .controls {
       background: var(--surface);
@@ -85,7 +79,6 @@
       flex: 1;
       min-width: 200px;
     }
-
     input[type="text"]:focus { border-color: var(--accent); }
 
     select {
@@ -98,7 +91,6 @@
       outline: none;
       cursor: pointer;
     }
-
     select:focus { border-color: var(--accent); }
 
     button {
@@ -112,7 +104,6 @@
       font-weight: 600;
       transition: opacity 0.15s;
     }
-
     button:hover { opacity: 0.85; }
     button.secondary {
       background: var(--surface2);
@@ -124,6 +115,7 @@
       max-width: 1100px;
       margin: 0 auto;
       padding: 1.5rem 2rem;
+      transition: padding-right 0.3s ease;
     }
 
     .results-info {
@@ -138,6 +130,7 @@
       gap: 1rem;
     }
 
+    /* ── CARD ── */
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -148,7 +141,6 @@
       gap: 0.6rem;
       transition: border-color 0.15s;
     }
-
     .card:hover { border-color: var(--accent); }
 
     .card-header {
@@ -166,10 +158,9 @@
       white-space: nowrap;
       flex-shrink: 0;
     }
-
-    .score-high   { background: rgba(52,211,153,0.15); color: var(--green); }
-    .score-mid    { background: rgba(251,191,36,0.15);  color: var(--yellow); }
-    .score-low    { background: rgba(248,113,113,0.15); color: var(--red); }
+    .score-high { background: rgba(52,211,153,0.15); color: var(--green); }
+    .score-mid  { background: rgba(251,191,36,0.15);  color: var(--yellow); }
+    .score-low  { background: rgba(248,113,113,0.15); color: var(--red); }
 
     .card-title {
       font-size: 0.95rem;
@@ -177,12 +168,7 @@
       line-height: 1.35;
       color: var(--text);
     }
-
-    .card-title a {
-      color: inherit;
-      text-decoration: none;
-    }
-
+    .card-title a { color: inherit; text-decoration: none; }
     .card-title a:hover { color: var(--accent2); }
 
     .card-summary {
@@ -212,7 +198,6 @@
       padding: 0.15rem 0.5rem;
       border-radius: 4px;
     }
-
     .profile-technical     { background: rgba(124,106,247,0.2); color: var(--accent2); }
     .profile-non-technical { background: rgba(52,211,153,0.15); color: var(--green); }
     .profile-both          { background: rgba(251,191,36,0.12);  color: var(--yellow); }
@@ -231,18 +216,28 @@
       color: var(--muted);
     }
 
-    .empty {
-      text-align: center;
-      padding: 4rem;
-      color: var(--muted);
+    .btn-chat {
+      margin-top: 0.4rem;
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent2);
+      font-size: 0.8rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-chat:hover {
+      background: rgba(124,106,247,0.15);
+      opacity: 1;
     }
 
+    .empty { text-align: center; padding: 4rem; color: var(--muted); }
     .empty h3 { font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text); }
 
-    .load-more {
-      text-align: center;
-      margin-top: 1.5rem;
-    }
+    .load-more { text-align: center; margin-top: 1.5rem; }
 
     .loading {
       text-align: center;
@@ -250,6 +245,204 @@
       color: var(--muted);
       font-size: 0.9rem;
     }
+
+    /* ── CHAT PANEL ── */
+    #chat-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: var(--chat-width);
+      height: 100vh;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+    }
+    #chat-panel.open { transform: translateX(0); }
+
+    .chat-header {
+      padding: 1rem 1.1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .chat-header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chat-header-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent2);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .chat-close {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      line-height: 1;
+    }
+    .chat-close:hover { background: var(--surface2); opacity: 1; color: var(--text); }
+
+    .chat-news-title {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.35;
+    }
+
+    .chat-news-meta {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .chat-news-link {
+      font-size: 0.72rem;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .chat-news-link:hover { text-decoration: underline; }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    .chat-msg {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      max-width: 90%;
+    }
+    .chat-msg.user { align-self: flex-end; align-items: flex-end; }
+    .chat-msg.ai   { align-self: flex-start; align-items: flex-start; }
+
+    .chat-bubble {
+      padding: 0.6rem 0.85rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .chat-msg.user .chat-bubble {
+      background: var(--accent);
+      color: white;
+      border-bottom-right-radius: 3px;
+    }
+    .chat-msg.ai .chat-bubble {
+      background: var(--surface2);
+      color: var(--text);
+      border-bottom-left-radius: 3px;
+    }
+
+    .chat-thinking {
+      display: flex;
+      gap: 4px;
+      padding: 0.6rem 0.85rem;
+      background: var(--surface2);
+      border-radius: 12px;
+      border-bottom-left-radius: 3px;
+    }
+    .chat-thinking span {
+      width: 6px;
+      height: 6px;
+      background: var(--muted);
+      border-radius: 50%;
+      animation: bounce 1.2s infinite;
+    }
+    .chat-thinking span:nth-child(2) { animation-delay: 0.2s; }
+    .chat-thinking span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); }
+      40%            { transform: translateY(-6px); }
+    }
+
+    .chat-suggestions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      padding: 0 1rem 0.5rem;
+    }
+
+    .chat-suggestion {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.78rem;
+      padding: 0.35rem 0.7rem;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: left;
+      transition: border-color 0.15s, color 0.15s;
+      font-weight: 400;
+    }
+    .chat-suggestion:hover {
+      border-color: var(--accent);
+      color: var(--text);
+      background: rgba(124,106,247,0.08);
+      opacity: 1;
+    }
+
+    .chat-input-area {
+      padding: 0.75rem 1rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    #chat-input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      outline: none;
+      resize: none;
+      height: 38px;
+      max-height: 120px;
+      overflow-y: auto;
+      font-family: inherit;
+    }
+    #chat-input:focus { border-color: var(--accent); }
+
+    #chat-send {
+      padding: 0.5rem 0.85rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+
+    /* overlay para móvil */
+    #chat-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 99;
+    }
+    #chat-overlay.open { display: block; }
   </style>
 </head>
 <body>
@@ -267,21 +460,18 @@
 
 <div class="controls">
   <input type="text" id="search" placeholder="Buscar por título o descripción..." />
-
   <select id="filter-profile">
     <option value="all">Todos los perfiles</option>
     <option value="technical">Técnico</option>
     <option value="non-technical">No técnico</option>
     <option value="both">Ambos</option>
   </select>
-
   <select id="filter-score">
     <option value="">Cualquier score</option>
     <option value="8">Score 8+ (top)</option>
     <option value="6">Score 6+</option>
     <option value="4">Score 4+</option>
   </select>
-
   <button onclick="loadItems(true)">Buscar</button>
   <button class="secondary" onclick="resetFilters()">Limpiar</button>
 </div>
@@ -295,43 +485,79 @@
   </div>
 </main>
 
+<!-- Overlay -->
+<div id="chat-overlay" onclick="closeChat()"></div>
+
+<!-- Panel de chat -->
+<div id="chat-panel">
+  <div class="chat-header">
+    <div class="chat-header-top">
+      <span class="chat-header-title">Preguntar a la IA</span>
+      <button class="chat-close" onclick="closeChat()">✕</button>
+    </div>
+    <div class="chat-news-title" id="chat-news-title"></div>
+    <div class="chat-news-meta">
+      <span class="source-badge" id="chat-news-source"></span>
+      <span class="score-badge" id="chat-news-score"></span>
+      <a class="chat-news-link" id="chat-news-link" href="#" target="_blank" rel="noopener">Ver artículo original ↗</a>
+    </div>
+  </div>
+
+  <div class="chat-messages" id="chat-messages"></div>
+
+  <div class="chat-suggestions" id="chat-suggestions">
+    <button class="chat-suggestion" onclick="sendSuggestion(this)">¿Qué oportunidades de negocio hay aquí?</button>
+    <button class="chat-suggestion" onclick="sendSuggestion(this)">¿Cómo puedo aplicar esto sin saber programar?</button>
+    <button class="chat-suggestion" onclick="sendSuggestion(this)">Explícame esto como si tuviera 10 años</button>
+    <button class="chat-suggestion" onclick="sendSuggestion(this)">¿Qué herramientas necesitaría para implementarlo?</button>
+  </div>
+
+  <div class="chat-input-area">
+    <textarea id="chat-input" placeholder="Pregunta lo que quieras sobre esta noticia..." rows="1"></textarea>
+    <button id="chat-send" onclick="sendMessage()">➤</button>
+  </div>
+</div>
+
 <script>
   let offset = 0;
   const LIMIT = 30;
 
+  // ── Estado del chat ──
+  let currentItem = null;
+  let chatHistory = []; // { role, content }
+
+  // ── Stats ──
   async function loadStats() {
     const res = await fetch('/api/stats');
     const s = await res.json();
-    document.getElementById('stat-total').textContent   = s.total;
-    document.getElementById('stat-today').textContent   = s.today;
-    document.getElementById('stat-high').textContent    = s.highScore;
-    document.getElementById('stat-tech').textContent    = s.technical;
-    document.getElementById('stat-nontech').textContent = s.nontechnical;
+    document.getElementById('stat-total').textContent    = s.total;
+    document.getElementById('stat-today').textContent    = s.today;
+    document.getElementById('stat-high').textContent     = s.highScore;
+    document.getElementById('stat-tech').textContent     = s.technical;
+    document.getElementById('stat-nontech').textContent  = s.nontechnical;
   }
 
+  // ── Items ──
   async function loadItems(reset = false) {
     if (reset) {
       offset = 0;
       document.getElementById('grid').innerHTML = '';
     }
-
-    const search  = document.getElementById('search').value.trim();
-    const profile = document.getElementById('filter-profile').value;
+    const search   = document.getElementById('search').value.trim();
+    const profile  = document.getElementById('filter-profile').value;
     const minScore = document.getElementById('filter-score').value;
-
-    const params = new URLSearchParams({ limit: LIMIT, offset });
-    if (search)   params.set('search', search);
+    const params   = new URLSearchParams({ limit: LIMIT, offset });
+    if (search)                       params.set('search', search);
     if (profile && profile !== 'all') params.set('profile', profile);
-    if (minScore) params.set('minScore', minScore);
+    if (minScore)                     params.set('minScore', minScore);
 
-    document.getElementById('loading').style.display = 'block';
+    document.getElementById('loading').style.display   = 'block';
     document.getElementById('load-more').style.display = 'none';
 
-    const res = await fetch(`/api/items?${params}`);
+    const res           = await fetch(`/api/items?${params}`);
     const { items, count } = await res.json();
 
     document.getElementById('loading').style.display = 'none';
-
     renderItems(items);
     offset += items.length;
 
@@ -339,18 +565,14 @@
       document.getElementById('results-info').textContent =
         count === 0 ? '' : `${offset} resultado${offset !== 1 ? 's' : ''} encontrado${offset !== 1 ? 's' : ''}`;
     }
-
     document.getElementById('load-more').style.display = count === LIMIT ? 'block' : 'none';
   }
 
-  function loadMore() {
-    loadItems(false);
-  }
-
+  function loadMore()     { loadItems(false); }
   function resetFilters() {
-    document.getElementById('search').value = '';
-    document.getElementById('filter-profile').value = 'all';
-    document.getElementById('filter-score').value = '';
+    document.getElementById('search').value          = '';
+    document.getElementById('filter-profile').value  = 'all';
+    document.getElementById('filter-score').value    = '';
     loadItems(true);
   }
 
@@ -360,15 +582,14 @@
     return 'score-low';
   }
 
-  function profileLabel(profile) {
-    if (profile === 'technical')     return 'Técnico';
-    if (profile === 'non-technical') return 'No técnico';
+  function profileLabel(p) {
+    if (p === 'technical')     return 'Técnico';
+    if (p === 'non-technical') return 'No técnico';
     return 'Ambos';
   }
 
   function renderItems(items) {
     const grid = document.getElementById('grid');
-
     if (items.length === 0 && offset === 0) {
       grid.innerHTML = `<div class="empty" style="grid-column:1/-1">
         <h3>Sin resultados</h3>
@@ -376,9 +597,8 @@
       </div>`;
       return;
     }
-
     for (const item of items) {
-      const tags = (item.tags || []).map(t => `<span class="tag">#${t}</span>`).join('');
+      const tags    = (item.tags || []).map(t => `<span class="tag">#${t}</span>`).join('');
       const upvotes = item.upvotes > 0 ? `<span class="upvotes">▲ ${item.upvotes}</span>` : '';
       const summary = item.summary
         ? `<div class="card-summary">${escHtml(item.summary)}</div>`
@@ -400,9 +620,100 @@
           ${tags}
           ${upvotes}
         </div>
+        <button class="btn-chat" onclick='openChat(${JSON.stringify(JSON.stringify(item))})'>
+          💬 Ampliar información con IA
+        </button>
       `;
       grid.appendChild(card);
     }
+  }
+
+  // ── Chat ──
+  function openChat(itemJson) {
+    currentItem  = JSON.parse(itemJson);
+    chatHistory  = [];
+
+    // rellenar cabecera
+    document.getElementById('chat-news-title').textContent  = currentItem.title;
+    document.getElementById('chat-news-source').textContent = currentItem.source;
+    const scoreBadge = document.getElementById('chat-news-score');
+    scoreBadge.textContent  = `${currentItem.score}/10`;
+    scoreBadge.className    = `score-badge ${scoreClass(currentItem.score)}`;
+    document.getElementById('chat-news-link').href = currentItem.url;
+
+    // limpiar mensajes
+    document.getElementById('chat-messages').innerHTML = '';
+    document.getElementById('chat-suggestions').style.display = 'flex';
+    document.getElementById('chat-input').value = '';
+
+    // abrir panel
+    document.getElementById('chat-panel').classList.add('open');
+    document.getElementById('chat-overlay').classList.add('open');
+    document.getElementById('chat-input').focus();
+  }
+
+  function closeChat() {
+    document.getElementById('chat-panel').classList.remove('open');
+    document.getElementById('chat-overlay').classList.remove('open');
+  }
+
+  function sendSuggestion(btn) {
+    document.getElementById('chat-input').value = btn.textContent;
+    document.getElementById('chat-suggestions').style.display = 'none';
+    sendMessage();
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const text  = input.value.trim();
+    if (!text || !currentItem) return;
+
+    input.value = '';
+    document.getElementById('chat-suggestions').style.display = 'none';
+
+    // añadir burbuja del usuario
+    appendMessage('user', text);
+    chatHistory.push({ role: 'user', content: text });
+
+    // mostrar indicador "escribiendo"
+    const thinkingEl = appendThinking();
+
+    try {
+      const res  = await fetch('/api/chat', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ item: currentItem, messages: chatHistory }),
+      });
+      const data = await res.json();
+      thinkingEl.remove();
+
+      const reply = data.reply || 'Sin respuesta.';
+      appendMessage('ai', reply);
+      chatHistory.push({ role: 'assistant', content: reply });
+    } catch (err) {
+      thinkingEl.remove();
+      appendMessage('ai', 'Error al conectar con la IA. ¿Está corriendo el servidor?');
+    }
+  }
+
+  function appendMessage(role, text) {
+    const msgs = document.getElementById('chat-messages');
+    const div  = document.createElement('div');
+    div.className = `chat-msg ${role}`;
+    div.innerHTML = `<div class="chat-bubble">${escHtml(text)}</div>`;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+    return div;
+  }
+
+  function appendThinking() {
+    const msgs = document.getElementById('chat-messages');
+    const div  = document.createElement('div');
+    div.className = 'chat-msg ai';
+    div.innerHTML = `<div class="chat-thinking"><span></span><span></span><span></span></div>`;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+    return div;
   }
 
   function escHtml(str) {
@@ -413,9 +724,22 @@
       .replace(/"/g, '&quot;');
   }
 
+  // Enter envía, Shift+Enter nueva línea
+  document.getElementById('chat-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
   // Enter en buscador
   document.getElementById('search').addEventListener('keydown', e => {
     if (e.key === 'Enter') loadItems(true);
+  });
+
+  // Escape cierra el chat
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeChat();
   });
 
   // Carga inicial
