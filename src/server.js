@@ -13,11 +13,13 @@ app.use(express.json());
 
 // API: listado de items con filtros
 app.get('/api/items', (req, res) => {
-  const { profile, minScore, limit = 50, offset = 0, search } = req.query;
+  const { profile, category, minScore, maxDays, limit = 50, offset = 0, search } = req.query;
   try {
     const items = getItems({
       profile,
+      category,
       minScore: minScore ? parseInt(minScore) : undefined,
+      maxDays:  maxDays  ? parseInt(maxDays)  : undefined,
       limit: parseInt(limit),
       offset: parseInt(offset),
       search,

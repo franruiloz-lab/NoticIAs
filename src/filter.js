@@ -3,13 +3,14 @@ const config = require('../config');
 
 const groq = new Groq({ apiKey: config.GROQ_API_KEY });
 
-const SYSTEM_PROMPT = `Eres un analista experto en tecnología e inteligencia artificial.
-Tu tarea es evaluar noticias/posts y determinar si representan una oportunidad real de negocio o una novedad relevante del mundo de la IA.
+const SYSTEM_PROMPT = `Eres un analista experto en tecnología, inteligencia artificial y negocios digitales.
+Tu tarea es evaluar noticias/posts y determinar si representan una novedad relevante de IA o una oportunidad real de negocio.
 
 Responde SIEMPRE con un JSON válido con esta estructura exacta:
 {
   "score": <número del 0 al 10>,
   "profile": "<technical | non-technical | both>",
+  "category": "<business | news>",
   "summary": "<resumen en español de 1-2 frases, máximo 200 caracteres>",
   "tags": ["<tag1>", "<tag2>"]
 }
@@ -17,16 +18,20 @@ Responde SIEMPRE con un JSON válido con esta estructura exacta:
 Criterios de puntuación:
 - 0-3: Irrelevante, spam, clickbait, o no tiene nada que ver con IA/automatización/negocio
 - 4-5: Interesante pero sin aplicación práctica clara
-- 6-7: Relevante, con potencial de negocio o automatización aplicable
+- 6-7: Relevante, con potencial o automatización aplicable
 - 8-9: Alta oportunidad de negocio, idea accionable, tecnología muy relevante
 - 10: Disruptivo, oportunidad excepcional
 
+Criterios de categoría:
+- business: hay una forma concreta de ganar dinero aquí (alguien comparte ingresos, idea de negocio, herramienta que se puede monetizar, caso de éxito, modelo de negocio con IA)
+- news: novedad tecnológica, lanzamiento de modelo, investigación, tendencia general
+
 Criterios de perfil:
-- technical: requiere saber programar o tener conocimientos técnicos profundos
-- non-technical: cualquier persona puede aprovecharlo con las herramientas de IA actuales
+- technical: requiere saber programar o conocimientos técnicos profundos
+- non-technical: cualquier persona puede aprovecharlo con herramientas de IA actuales
 - both: tiene versión técnica y no técnica
 
-Tags posibles (elige 1-3): automatizacion, negocio, herramienta, modelo, investigacion, tutoral, tendencia, no-code, agentes, imagen, voz, video, datos, productividad`;
+Tags posibles (elige 1-3): automatizacion, negocio, herramienta, modelo, investigacion, tutorial, tendencia, no-code, agentes, imagen, voz, video, datos, productividad, ingresos, saas, freelance`;
 
 async function filterItem(item, retries = 4) {
   const prompt = `Título: ${item.title}\nFuente: ${item.source}\n${item.summary ? `Descripción: ${item.summary}` : ''}`;
@@ -49,10 +54,11 @@ async function filterItem(item, retries = 4) {
 
       const result = JSON.parse(jsonMatch[0]);
       return {
-        score:   Math.min(10, Math.max(0, parseInt(result.score) || 0)),
-        profile: ['technical', 'non-technical', 'both'].includes(result.profile) ? result.profile : 'both',
-        summary: result.summary || item.summary || '',
-        tags:    JSON.stringify(Array.isArray(result.tags) ? result.tags.slice(0, 3) : []),
+        score:    Math.min(10, Math.max(0, parseInt(result.score) || 0)),
+        profile:  ['technical', 'non-technical', 'both'].includes(result.profile) ? result.profile : 'both',
+        category: ['business', 'news'].includes(result.category) ? result.category : 'news',
+        summary:  result.summary || item.summary || '',
+        tags:     JSON.stringify(Array.isArray(result.tags) ? result.tags.slice(0, 3) : []),
       };
     } catch (err) {
       const msg = err.message || '';
@@ -68,11 +74,11 @@ async function filterItem(item, retries = 4) {
       }
 
       console.error(`[Filter] Error evaluando "${item.title}":`, msg.slice(0, 80));
-      return { score: 0, profile: 'both', summary: item.summary || '', tags: '[]' };
+      return { score: 0, profile: 'both', category: 'news', summary: item.summary || '', tags: '[]' };
     }
   }
 
-  return { score: 0, profile: 'both', summary: item.summary || '', tags: '[]' };
+  return { score: 0, profile: 'both', category: 'news', summary: item.summary || '', tags: '[]' };
 }
 
 async function filterItems(items) {

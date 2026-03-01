@@ -5,41 +5,52 @@ module.exports = {
 
   RSS_FEEDS: [
     // Blogs oficiales de labs de IA
-    { name: 'OpenAI Blog',       url: 'https://openai.com/blog/rss.xml' },
-    { name: 'Anthropic News',    url: 'https://www.anthropic.com/rss.xml' },
-    { name: 'Google DeepMind',   url: 'https://deepmind.google/blog/rss.xml' },
-    { name: 'Mistral AI',        url: 'https://mistral.ai/news/rss' },
-    { name: 'Hugging Face Blog', url: 'https://huggingface.co/blog/feed.xml' },
-    // Newsletters y medios IA
-    { name: 'The Batch (deeplearning.ai)', url: 'https://www.deeplearning.ai/the-batch/feed/' },
-    { name: 'Import AI',         url: 'https://importai.substack.com/feed' },
-    { name: 'Ben\'s Bites',      url: 'https://bensbites.beehiiv.com/feed' },
-    { name: 'The Rundown AI',    url: 'https://www.therundown.ai/feed' },
-    { name: 'TLDR AI',           url: 'https://tldr.tech/ai/rss' },
+    { name: 'OpenAI Blog',          url: 'https://openai.com/blog/rss.xml' },
+    { name: 'Google DeepMind',      url: 'https://deepmind.google/blog/rss.xml' },
+    { name: 'Hugging Face Blog',    url: 'https://huggingface.co/blog/feed.xml' },
+    { name: 'Mistral AI',           url: 'https://mistral.ai/news/rss.xml' },
+    // Newsletters IA
+    { name: 'Import AI',            url: 'https://importai.substack.com/feed' },
     { name: 'Towards Data Science', url: 'https://towardsdatascience.com/feed' },
-    { name: 'VentureBeat AI',    url: 'https://venturebeat.com/category/ai/feed/' },
+    { name: 'VentureBeat AI',       url: 'https://venturebeat.com/category/ai/feed/' },
+    { name: 'The Decoder',          url: 'https://the-decoder.com/feed/' },
+    // ── Fuentes de negocios e ideas (gente real, sin humo) ──
+    // Indie Hackers: fundadores bootstrapped que comparten ingresos reales
+    { name: 'Indie Hackers',        url: 'https://www.indiehackers.com/feed.rss' },
+    // Product Hunt: lanzamientos de productos IA nuevos
+    { name: 'Product Hunt',         url: 'https://www.producthunt.com/feed' },
+    // Bannerbear blog: caso real de SaaS bootstrapped con IA (comparte revenue)
+    { name: 'Bannerbear Blog',      url: 'https://www.bannerbear.com/blog/feed/' },
+    // No Code MBA: tutoriales de negocios sin código con IA
+    { name: 'No Code MBA',          url: 'https://www.nocode.mba/feed' },
+    // Lenny's Newsletter (free posts): estrategia de producto y crecimiento
+    { name: "Lenny's Newsletter",   url: 'https://www.lennysnewsletter.com/feed' },
   ],
 
   REDDIT_SUBREDDITS: [
+    // IA y tecnología
     'MachineLearning',
-    'artificial',
-    'ChatGPT',
-    'SideProject',
-    'Entrepreneur',
-    'startups',
     'LocalLLaMA',
+    'artificial',
+    // Negocios reales con IA (gente que comparte lo que gana)
+    'EntrepreneurRideAlong', // fundadores compartiendo su viaje con números reales
+    'microsaas',             // micro-SaaS, negocios pequeños y rentables
+    'SideProject',           // proyectos secundarios que generan ingresos
     'AIAssistants',
+    'ChatGPT',
   ],
 
-  REDDIT_MIN_SCORE: 50, // solo posts con >= X upvotes
+  REDDIT_MIN_SCORE: 50,
 
-  HACKERNEWS_MIN_SCORE: 30, // solo stories con >= X puntos
-  HACKERNEWS_TAGS: ['story'], // 'story', 'ask_hn', 'show_hn'
+  HACKERNEWS_MIN_SCORE: 30,
 
-  MAX_ITEMS_PER_SOURCE: 20, // cuantos items traer por fuente en cada fetch
+  MAX_ITEMS_PER_SOURCE: 20,
+
+  // Antigüedad máxima de noticias a mostrar por defecto (días)
+  DEFAULT_MAX_DAYS: 7,
 
   AI_FILTER: {
-    model: 'llama-3.1-8b-instant', // modelo rápido y barato en Groq
-    min_score: 6,            // puntuación mínima para guardar (0-10)
+    model: 'llama-3.1-8b-instant',
+    min_score: 6,
   },
 };
