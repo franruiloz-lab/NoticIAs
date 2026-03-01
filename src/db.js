@@ -4,6 +4,7 @@ const path = require('path');
 const DB_PATH = path.join(__dirname, '..', 'data.sqlite');
 const db = new Database(DB_PATH);
 
+// Tabla base (sin category, compatible con instancias existentes)
 db.exec(`
   CREATE TABLE IF NOT EXISTS items (
     id           INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -14,24 +15,21 @@ db.exec(`
     summary      TEXT,
     score        INTEGER DEFAULT 0,
     profile      TEXT DEFAULT 'both',
-    category     TEXT DEFAULT 'news',
     tags         TEXT DEFAULT '[]',
     upvotes      INTEGER DEFAULT 0,
     fetched_at   TEXT NOT NULL,
     published_at TEXT
   );
-
-  CREATE INDEX IF NOT EXISTS idx_score       ON items(score DESC);
-  CREATE INDEX IF NOT EXISTS idx_fetched_at  ON items(fetched_at DESC);
-  CREATE INDEX IF NOT EXISTS idx_profile     ON items(profile);
-  CREATE INDEX IF NOT EXISTS idx_category    ON items(category);
-  CREATE INDEX IF NOT EXISTS idx_published   ON items(published_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_score      ON items(score DESC);
+  CREATE INDEX IF NOT EXISTS idx_fetched_at ON items(fetched_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_profile    ON items(profile);
+  CREATE INDEX IF NOT EXISTS idx_published  ON items(published_at DESC);
 `);
 
-// Migración: añadir columna category si no existe (para bases de datos antiguas)
-try {
-  db.exec(`ALTER TABLE items ADD COLUMN category TEXT DEFAULT 'news'`);
-} catch (_) { /* ya existe */ }
+// Migración: añadir category si no existe
+try { db.exec(`ALTER TABLE items ADD COLUMN category TEXT DEFAULT 'news'`); } catch (_) {}
+// Índice de category después de asegurar que la columna existe
+try { db.exec(`CREATE INDEX IF NOT EXISTS idx_category ON items(category)`); } catch (_) {}
 
 function insertItem(item) {
   const stmt = db.prepare(`
